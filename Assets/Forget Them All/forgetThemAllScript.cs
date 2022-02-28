@@ -54,10 +54,10 @@ public class forgetThemAllScript : MonoBehaviour
 
     bool colorblindDetected = false;
     public KMColorblindMode colorblindMode;
-    bool hasDetonated = false, hasStruck = false, isHardcoreBossModule, requestMercyAnim;
+    bool hasDetonated = false, isHardcoreBossModule, requestMercyAnim;
 
     IEnumerator flashIndicator;
-    int wiresIncorrectlyCut = 0;
+    int wiresIncorrectlyCut = 0;//, strikeCountUponActivation;
 
     private ForgetThemAllSettings ftaSettings;
 
@@ -242,7 +242,7 @@ public class forgetThemAllScript : MonoBehaviour
         {
             Debug.LogFormat("[Forget Them All #{0}] Strike! [{1}] wire cut before module is ready to be solved.", moduleId, GetColorName(colors[wire]));
             modSelf.HandleStrike();
-            hasStruck = true;
+            //hasStruck = true;
             return;
         }
         lightsRenderer[wire].material = lightColors[13];
@@ -278,7 +278,7 @@ public class forgetThemAllScript : MonoBehaviour
         {
             Debug.LogFormat("[Forget Them All #{0}] Strike! Incorrectly cut {1} wire when it was expecting {2} wire.", moduleId, GetColorName(colors[wire]), GetColorName(cutOrder[0]));
             modSelf.HandleStrike();
-            hasStruck = true;
+            //hasStruck = true;
             if (!isHardcoreBossModule)
             {
                 wiresIncorrectlyCut = 1;
@@ -309,7 +309,7 @@ public class forgetThemAllScript : MonoBehaviour
             lightsRenderer[i].material = lightColors[13];
             colorblindTexts[i].text = "";
         }
-        queryStagesCount.text = "+00";
+        queryStagesCount.text = "+00";//strikeCountUponActivation.ToString("00") + "X";
         yield return new WaitForSeconds(3f);
 
         for (int x = 0; x < stages.Length; x++)
@@ -559,7 +559,7 @@ public class forgetThemAllScript : MonoBehaviour
         int onInd = bomb.GetOnIndicators().Count();
         int offInd = bomb.GetOffIndicators().Count();
         int dBattery = bomb.GetBatteryCount(Battery.D);
-
+        // Calculate the final stage by the multiplier amount specified for each color and how many times that color has occured overall (after broken LED modifier).
         int yellow = totalLED[0] * aaBattery;
         int grey = totalLED[1] * portPlates;
         int blue = totalLED[2] * startTime;
@@ -573,6 +573,8 @@ public class forgetThemAllScript : MonoBehaviour
         int purple = totalLED[10] * totalLED[10];
         int magenta = totalLED[11] * offInd;
         int pink = totalLED[12] * dBattery;
+
+        //strikeCountUponActivation = strikeCount;
 
         Debug.LogFormat("[Forget Them All #{0}] Yellow ocurrences: {1}. Multiplier: {2}. LED value: {3}.", moduleId, totalLED[0], aaBattery, yellow);
         Debug.LogFormat("[Forget Them All #{0}] Grey ocurrences: {1}. Multiplier: {2}. LED value: {3}.", moduleId, totalLED[1], portPlates, grey);
@@ -751,10 +753,10 @@ public class forgetThemAllScript : MonoBehaviour
         new string[] { "pink", "i" }
     };
 
-#pragma warning disable IDE0051
+    
     private readonly string TwitchHelpMessage = "Cut the wires with \"!{0} cut 1 2 3 ...\", or with \"!{0} cut red orange yellow ...\". Wires are numbered 1–13 from left to right on the module. For color name abbreviations, use \"!{0} colornames\". To toggle colorblind mode: \"!{0} colorblind\"";
-#pragma warning restore IDE0051
-    IEnumerator ProcessTwitchCommand(string command)
+    
+    IEnumerator ProcessTwitchCommand(string command) // TP Handler rewritten by Quinn Weast
     {
         var c = Regex.Match(command, @"^\s*colou?rblind", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         if (c.Success)
