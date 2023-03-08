@@ -818,21 +818,26 @@ public class forgetThemAllScript : MonoBehaviour
             yield break;
         }
         var selList = new List<KMSelectable>();
+        var consideredToStrike = false;
         for (int i = 0; i < list.Count; i++)
         {
             int wireix = list[i];
-            if (!readyToSolve || cutOrder.First() != colors[wireix])
+            if (!readyToSolve || (i < cutOrder.Count && cutOrder[i] != colors[wireix]))
+            {
+                consideredToStrike = true;
                 yield return string.Format("strikemessage incorrectly cutting the {0} wire at position {1} after {2} previous cuts!", _wireColorNames[colors[wireix]][0], wireix + 1, i);
+            }
             if (wiresCut.Contains(wireix))
             {
                 yield return string.Format("sendtochaterror the {0} wire at position {1} has already been cut! Command stopped.", _wireColorNames[colors[wireix]][0], wireix + 1);
                 yield break;
             }
             selList.Add(wireInt[wireix]);
+            if (consideredToStrike)
+                break;
         }
         yield return null;
-        yield return "solve";
-        yield return "strike";
+        yield return consideredToStrike ? "strike" : "solve";
         foreach (var sel in selList)
         {
             sel.OnInteract();
