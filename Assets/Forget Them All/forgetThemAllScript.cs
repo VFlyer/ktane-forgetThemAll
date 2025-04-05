@@ -147,13 +147,14 @@ public class forgetThemAllScript : MonoBehaviour
                 "Timing is Everything",
                 "Turn the Key"
             });
-        startTime = (int)(bomb.GetTime() / 60);
+        
         RandomizeColors();
         Debug.LogFormat("[Forget Them All #{0}] Stage recovery is {1} for this module.", moduleId, isHardcoreBossModule ? "disabled" : "enabled");
     }
     bool canStart = false;
     void Activate()
     {
+        startTime = (int)(bomb.GetTime() / 60);
         if (CheckAutoSolve())
         {
             Debug.LogFormat("[Forget Them All #{0}] There are 0 modules not ignored on this bomb. Autosolving...", moduleId);
